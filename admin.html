@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard | Safety Portal</title>
+
+  
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    table {
+      width: 90%;
+      margin: 30px auto;
+      background: white;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    th {
+      background: #e5e7eb;
+    }
+
+    select {
+      padding: 5px;
+    }
+
+    .charts {
+      width: 90%;
+      margin: 40px auto;
+      display: flex;
+      gap: 30px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .chart-box {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 450px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Admin Dashboard – Safety Incident Management</h2>
+
+
+<table>
+  <thead>
+    <tr>
+      <th>Location</th>
+      <th>Incident Type</th>
+      <th>Severity</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="tableBody"></tbody>
+</table>
+
+
+<div class="charts">
+  <div class="chart-box">
+    <h3>Incident Types Distribution</h3>
+    <div id="typeChart" style="height:300px;"></div>
+  </div>
+
+  <div class="chart-box">
+    <h3>Incidents by Location</h3>
+    <div id="locationChart" style="height:300px;"></div>
+  </div>
+</div>
+
+<a href="index.html">Home</a> |
+<a href="report.html">Report Incident</a>
+
+
+<script>
+  
+  google.charts.load('current', { packages: ['corechart'] });
+  google.charts.setOnLoadCallback(drawDashboard);
+
+  function drawDashboard() {
+
+    let incidents = JSON.parse(localStorage.getItem("incidents")) || [];
+    let tableBody = document.getElementById("tableBody");
+
+    let typeCount = {};
+    let locationCount = {};
+
+   
+    incidents.forEach((incident, index) => {
+      let row = tableBody.insertRow();
+
+      row.insertCell(0).innerText = incident.location;
+      row.insertCell(1).innerText = incident.type;
+      row.insertCell(2).innerText = incident.severity;
+
+      let statusCell = row.insertCell(3);
+      let statusSelect = document.createElement("select");
+
+      ["Open", "In Progress", "Resolved"].forEach(status => {
+        let option = document.createElement("option");
+        option.value = status;
+        option.text = status;
+        if (status === incident.status) option.selected = true;
+        statusSelect.appendChild(option);
+      });
+
+      statusSelect.onchange = () => {
+        incidents[index].status = statusSelect.value;
+        localStorage.setItem("incidents", JSON.stringify(incidents));
+      };
+
+      statusCell.appendChild(statusSelect);
+
+      
+      typeCount[incident.type] = (typeCount[incident.type] || 0) + 1;
+      locationCount[incident.location] = (locationCount[incident.location] || 0) + 1;
+    });
+
+    drawTypeChart(typeCount);
+    drawLocationChart(locationCount);
+  }
+
+  
+  function drawTypeChart(typeCount) {
+    let dataArray = [['Incident Type', 'Count']];
+    for (let type in typeCount) {
+      dataArray.push([type, typeCount[type]]);
+    }
+
+    let data = google.visualization.arrayToDataTable(dataArray);
+
+    let options = {
+      pieHole: 0.4
+    };
+
+    let chart = new google.visualization.PieChart(document.getElementById('typeChart'));
+    chart.draw(data, options);
+  }
+
+
+  function drawLocationChart(locationCount) {
+    let dataArray = [['Location', 'Incidents']];
+    for (let location in locationCount) {
+      dataArray.push([location, locationCount[location]]);
+    }
+
+    let data = google.visualization.arrayToDataTable(dataArray);
+
+    let options = {
+      legend: { position: 'none' }
+    };
+
+    let chart = new google.visualization.ColumnChart(document.getElementById('locationChart'));
+    chart.draw(data, options);
+  }
+</script>
+
+</body>
+</html>

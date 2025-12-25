@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Report Safety Incident</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    form {
+      background: white;
+      width: 400px;
+      margin: 40px auto;
+      padding: 25px;
+      border-radius: 8px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 6px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 20px;
+      padding: 10px;
+      background: #2563eb;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+
+    button:hover {
+      background: #1e40af;
+    }
+  </style>
+</head>
+
+<body>
+
+<h2>Report a Safety Incident</h2>
+
+<form onsubmit="submitIncident(event)">
+  
+  <label>Location</label>
+  <input type="text" id="location" required>
+
+  <label>Incident Type</label>
+  <select id="type" required>
+    <option value="">Select</option>
+    <option>Fire</option>
+    <option>Electrical</option>
+    <option>Injury</option>
+    <option>Equipment Failure</option>
+  </select>
+
+  <label>Severity</label>
+  <select id="severity" required>
+    <option value="">Select</option>
+    <option>Low</option>
+    <option>Medium</option>
+    <option>High</option>
+  </select>
+
+  <label>Description</label>
+  <textarea id="description" rows="3"></textarea>
+
+  <button type="submit">Submit Incident</button>
+</form>
+
+<a href="index.html">Home</a> |
+<a href="admin.html">Admin Dashboard</a>
+
+
+<script>
+  function submitIncident(event) {
+    event.preventDefault();
+
+    let incidents = JSON.parse(localStorage.getItem("incidents")) || [];
+
+    let newIncident = {
+      location: document.getElementById("location").value,
+      type: document.getElementById("type").value,
+      severity: document.getElementById("severity").value,
+      description: document.getElementById("description").value,
+      status: "Open"
+    };
+
+    incidents.push(newIncident);
+    localStorage.setItem("incidents", JSON.stringify(incidents));
+
+    alert("Incident reported successfully!");
+
+    event.target.reset();
+  }
+</script>
+
+</body>
+</html>
